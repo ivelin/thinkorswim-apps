@@ -2,7 +2,9 @@
 
 Various experimental studies and strategies written in Thinkscript for users of the Thinkorswim investment platform. 
 
-USE AT YOUR OWN RISK!
+# USE AT YOUR OWN RISK!
+
+Disclaimer: In order to demonstrate the functionality of these apps, actual ticker symbols may be used. However, we do not make recommendations or determine the suitability of any security or strategy for individual traders. Any investment decision you make in your self-directed account is solely your responsibility. Be sure to backtest any strategy to determine if you understand the risks involved with each strategy.
 
 ## Net New Highs - Lows
 
