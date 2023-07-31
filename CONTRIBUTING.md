@@ -29,7 +29,7 @@ All types of contributions are encouraged and valued. See the [Table of Contents
 ## Code of Conduct
 
 This project and everyone participating in it is governed by the
-[Thinkorswim Apps Code of Conduct](https://github.com/ivelin/thinkorswim-apps/blob//CODE_OF_CONDUCT.md).
+[Thinkorswim Apps Code of Conduct](CODE_OF_CONDUCT.md).
 By participating, you are expected to uphold this code. Please report unacceptable behaviour
 to .
 
