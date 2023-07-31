@@ -13,6 +13,21 @@ Leading market trend indicator that shows whether stocks in a given period have 
 Celebrity investor Matt Caruso explains in the video below when this indicator can be helpful:
 [![Watch the video](http://i3.ytimg.com/vi/wrNSOfE4AO8/hqdefault.jpg)](https://youtu.be/wrNSOfE4AO8)
 
+## Thinkorswim Study
+
+ToS Study can be imported from this link: http://tos.mx/dBcU2fF
+
+## Example Chart
+
+Example ToS Chart for TSLA and Net New Highs / Lows studies from NYSE and NASDAQ:
+https://tos.mx/Oz77GEr
+
+![Screen Shot 2023-07-31 at 1 17 11 AM](https://github.com/ivelin/thinkorswim-apps/assets/2234901/1632137b-2cb3-4932-816c-89f2f64eaa45)
+
+## Source Code
+
+Thinkscript source code is available in this repo: [new_highs_lows.rb](new_highs_lows.rb)
+
 ## Credit
 Thinkscript code is based on [Melvin's work](https://thinkscript101.com/new-highs-new-lows-indicator-thinkorswim/).
 
