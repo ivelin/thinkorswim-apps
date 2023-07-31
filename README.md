@@ -15,12 +15,11 @@ Celebrity investor Matt Caruso explains in the video below when this indicator c
 
 ## Thinkorswim Study
 
-ToS Study can be imported from this link: http://tos.mx/dBcU2fF
+ToS Study can be imported from this link: [http://tos.mx/dBcU2fF](https://tos.mx/T9NuyZc)
 
 ## Example Chart
 
 Example ToS Chart for TSLA and Net New Highs / Lows studies from NYSE and NASDAQ:
-https://tos.mx/Oz77GEr
 
 ![Screen Shot 2023-07-31 at 1 17 11 AM](https://github.com/ivelin/thinkorswim-apps/assets/2234901/1632137b-2cb3-4932-816c-89f2f64eaa45)
 
