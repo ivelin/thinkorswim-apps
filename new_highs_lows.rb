@@ -1,5 +1,6 @@
 # Based on original work by Melvin and Mobius
 # https://thinkscript101.com/new-highs-new-lows-indicator-thinkorswim/
+
 #
 # Copyright 2022 Scott J. Johnson (https://scottjjohnson.com)
 # Copyright 2023 Ivelin Ivanov (ivelin117@gmail.com)
@@ -28,25 +29,26 @@
 # The TOS symbols don't appear to work at expected when the aggregation period is WEEK so this
 # study is only for daily charts.
 #
+
 declare lower;
 input exchange = {default "NYSE", "NASDAQ", "AMEX", "ARCA", "ETF"};
  
-def ap = AggregationPeriod.DAY;
 def diff;
 switch (exchange){
 case "NYSE":
-    diff = close(Symbol = "$NYHGH", period = ap) - close(Symbol = "$NYLOW", period = ap);
+    diff = close("$NYHGH") - close("$NYLOW");
 case "NASDAQ":
-    diff = close(Symbol = "$NAHGH", period = ap) - close(Symbol = "$NALOW", period = ap);
+    diff = close("$NAHGH") - close("$NALOW");
 case "AMEX":
-    diff = close(Symbol = "$AMHGH", period = ap) - close(Symbol = "$AMLOW", period = ap);
+    diff = close("$AMHGH") - close("$AMLOW");
 case "ARCA":
-    diff = close(Symbol = "$ARHGH", period = ap) - close(Symbol = "$ARLOW", period = ap);
+    diff = close("$ARHGH") - close("$ARLOW");
 case "ETF":
-    diff = close(Symbol = "$ETFHIGH", period = ap) - close(Symbol = "$ETFLOW", period = ap);
+    diff = close("$ETFHIGH") - close("$ETFLOW");
 }
  
-plot hlp = if IsNaN(close) then Double.NaN else diff;
+# show net new highs/lows bars
+plot hlp = diff;
 hlp.EnableApproximation();
 hlp.SetPaintingStrategy(PaintingStrategy.HISTOGRAM);
 hlp.SetLineWeight(5);
@@ -54,8 +56,16 @@ hlp.AssignValueColor(if hlp < 0 then Color.RED
                         else if hlp > 0 then Color.GREEN
                         else Color.CYAN);
  
+# show zero line
 plot zero = 0.0;
 zero.SetDefaultColor(Color.WHITE);
 zero.SetLineWeight(1);
 zero.HideBubble();
 zero.HideTitle();
+
+# Show trend cloud
+def uptrend = diff > 0 and diff[1] > 0 and diff[2] > 0;
+def downtrend = diff < 0 and diff[1] < 0 and diff[2] < 0;
+def hiLevel = if uptrend then Double.POSITIVE_INFINITY else if downtrend then Double.NEGATIVE_INFINITY else 0;
+AddCloud(hiLevel, -hiLevel, Color.LIGHT_GREEN, Color.LIGHT_RED);
+
