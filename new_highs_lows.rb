@@ -31,20 +31,30 @@
 #
 
 declare lower;
-input exchange = {default "NYSE", "NASDAQ", "AMEX", "ARCA", "ETF"};
+input exchange = {default "ALL STOCKS", "NYSE", "NASDAQ", "AMEX", "ARCA", "ETF"};
  
 def diff;
+
+def nydiff = close("$NYHGH") - close("$NYLOW");
+def nadiff = close("$NAHGH") - close("$NALOW");
+def amdiff = close("$AMHGH") - close("$AMLOW");
+def ardiff = close("$ARHGH") - close("$ARLOW");
+def alldiff = nydiff+nadiff+amdiff+ardiff;
+def etfdiff = close("$ETFHIGH") - close("$ETFLOW");
+
 switch (exchange){
 case "NYSE":
-    diff = close("$NYHGH") - close("$NYLOW");
+    diff = nydiff;
 case "NASDAQ":
-    diff = close("$NAHGH") - close("$NALOW");
+    diff =nadiff;
 case "AMEX":
-    diff = close("$AMHGH") - close("$AMLOW");
+    diff = amdiff;
 case "ARCA":
-    diff = close("$ARHGH") - close("$ARLOW");
+    diff = ardiff;
 case "ETF":
-    diff = close("$ETFHIGH") - close("$ETFLOW");
+    diff = etfdiff;
+case "ALL STOCKS":
+    diff = alldiff;
 }
  
 # show net new highs/lows bars
