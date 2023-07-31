@@ -1,6 +1,8 @@
-# thinkorswim-apps
+# Thinkorswim Apps
 
-Various experimental apps in Thinkscript for users of Thinkorswim.
+Various experimental studies and strategies written in Thinkscript for users of the Thinkorswim investment platform. 
+
+USE AT YOUR OWN RISK!
 
 ## Net New Highs
 
