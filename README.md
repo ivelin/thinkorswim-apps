@@ -13,25 +13,46 @@ Leading market trend indicator that shows whether stocks in a given period have 
 Celebrity investor Matt Caruso explains in the video below when this indicator can be helpful:
 [![Watch the video](http://i3.ytimg.com/vi/wrNSOfE4AO8/hqdefault.jpg)](https://youtu.be/wrNSOfE4AO8)
 
-## Thinkorswim Study
+### Thinkorswim Shared Study Link
 
-ToS Study can be imported from this link: [http://tos.mx/dBcU2fF](https://tos.mx/T9NuyZc)
+New Highs and Lows ToS Study can be imported from [this link](https://tos.mx/T9NuyZc)
 
-## Example Chart
+### Example Chart
 
 Example ToS Chart for TSLA and Net New Highs / Lows studies from NYSE and NASDAQ:
 
 ![Screen Shot 2023-07-31 at 1 17 11 AM](https://github.com/ivelin/thinkorswim-apps/assets/2234901/1632137b-2cb3-4932-816c-89f2f64eaa45)
 
-## Source Code
+### Source Code
 
-Thinkscript source code is available in this repo: [new_highs_lows.rb](new_highs_lows.rb)
+Thinkscript source code is available in this repo: [new_highs_lows_STUDY.ts](new_highs_lows_STUDY.ts)
 
-## Credit
+### Credit
 Thinkscript code is based on [Melvin's work](https://thinkscript101.com/new-highs-new-lows-indicator-thinkorswim/).
 
-## Notes
+### Notes
 The study uses ToS built-in Net Highs and Net Lows symbols such as : `$NYHGH`, `$NYLOW` and others. A more complete list is available in the [ToS Learning Center](https://tlc.thinkorswim.com/center/release/rel-07-20-2013).
+
+## Beta Adjusted Relative Strength
+
+This indicator is inspired by [Matt Caruso](https://twitter.com/Trader_mcaruso) 's [CARS](https://www.carusoinsights.com/cars/) (Carusso Adaptive Relative Strength) indicator.
+
+[Relative Strength indicator](https://tlc.thinkorswim.com/center/reference/Tech-Indicators/studies-library/R-S/RelativeStrength) is a popular tool for measuring whether a stock price is growing faster or slower relative to a base index. However when the stock is highly volatile, RS becomes a proxy for the stock price which is not very useful. This Beta Adjusted Relative Strength indicator removes the noise from RS by adjusting for the typical stock volatility relative to the index. See screenshot example below.
+
+### Example Chart: TSLA vs SPX
+
+RS in solid gray line, and Beta Adjusted RS in dashed gray line. Notice how due to TSLA's high volatility relative to SPX (purple line), RS does not provide meaningful information at first glance. Whereas Beta Adjusted RS distinctly shows spikes usually **before** a trend develops.
+ 
+![Screen Shot 2023-08-15 at 7 37 45 PM](https://github.com/ivelin/thinkorswim-apps/assets/2234901/f1e40761-931d-4004-a527-fb9e03f04cc8)
+
+### Thinkorswim Shared Study Link
+
+Beta Adjusted Relative Strength ToS Study can be imported from [this link](https://tos.mx/ScdmpVq) .
+
+### Source Code
+
+Thinkscript source code is available in this repo: [relative_strength_beta_adjusted_STUDY.ts](relative_strength_beta_adjusted_STUDY.ts)
+
 
 # Contributing
 
