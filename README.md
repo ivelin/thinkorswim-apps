@@ -41,9 +41,10 @@ This indicator is inspired by [Matt Caruso](https://twitter.com/Trader_mcaruso) 
 
 ### Example Chart: TSLA vs SPX
 
-RS in solid gray line, and Beta Adjusted RS in dashed gray line. Notice how due to TSLA's high volatility relative to SPX (purple line), RS does not provide meaningful information at first glance. Whereas Beta Adjusted RS distinctly shows spikes usually **before** a trend develops.
+RS in solid gray line, and Beta Adjusted RS in dashed gray line. Notice how due to TSLA's high volatility relative to SPX (purple line), RS does not provide meaningful information at first glance. Whereas Beta Adjusted RS shows more pronounced spikes and slopes as a stock trend develops relative to the index.
  
-![Screen Shot 2023-08-15 at 7 37 45 PM](https://github.com/ivelin/thinkorswim-apps/assets/2234901/f1e40761-931d-4004-a527-fb9e03f04cc8)
+![Screen Shot 2023-08-15 at 8 11 39 PM](https://github.com/ivelin/thinkorswim-apps/assets/2234901/cc03d571-c01f-48d2-9624-92750f5aafcd)
+
 
 ### Thinkorswim Shared Study Link
 
