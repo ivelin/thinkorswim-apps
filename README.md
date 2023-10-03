@@ -55,6 +55,31 @@ Beta Adjusted Relative Strength ToS Study can be imported from [this link](https
 Thinkscript source code is available in this repo: [relative_strength_beta_adjusted_STUDY.ts](relative_strength_beta_adjusted_STUDY.ts)
 
 
+## IBD CANSLIM inspired Breakout Strategy
+
+[IBD CANSLIM](https://www.investors.com/ibd-university/can-slim/) is a popular system with a number of rules for recognizing and acting on leading stocks in cooperating market conditions. 
+
+This Thinkscript strategy is a simplified interpretation of the 52 week high breakout strategy. It is **NOT** intended as a replacement for applying the full CANSLIM system. 
+This strategy is simply a tool to help spot entry opportunities for further analysis. NOT A RECOMMENDATION! NOT FINANCIAL ADVICE! USE AT YOUR OWN RISK!
+
+### Example Chart
+
+Example ToS Chart applying this breakout strategy to AAPLE:
+![Screen Shot 2023-10-03 at 8 22 52 AM](https://github.com/ivelin/thinkorswim-apps/assets/2234901/5120cde3-8e63-4650-883e-8520221bbbdf)
+
+### Notes
+
+This strategy seems to provide one possible answer to celebrity investor Mark Minervini's question [posed on his Twitter/X account](https://twitter.com/markminervini/status/1486031846957883393?lang=en):
+![Screen Shot 2023-10-02 at 11 10 46 PM](https://github.com/ivelin/thinkorswim-apps/assets/2234901/b988466e-a78b-4f92-92eb-343115b391fe)
+
+### Thinkorswim Shared Strategy Link
+
+Direct Thinkorswim import via [this link](https://tos.mx/dz9WBvo)
+
+### Source Code
+
+Thinkscript source code is available in this repo: [CANSLIM_Breakout_Strategy.ts](CANSLIM_Breakout_Strategy.ts)
+
 # Contributing
 
 Bug fixes and improvements are welcome! Please read the [CONTRIBUTING GUIDE](CONTRIBUTING.md) and [CODE OF CONDUCT](CODE_OF_CONDUCT.md) before your first contribution.
