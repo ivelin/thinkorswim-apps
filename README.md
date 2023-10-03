@@ -62,6 +62,8 @@ Thinkscript source code is available in this repo: [relative_strength_beta_adjus
 This Thinkscript strategy is a simplified interpretation of the 52 week high breakout strategy. It is **NOT** intended as a replacement for applying the full CANSLIM system. 
 This strategy is simply a tool to help spot entry opportunities for further analysis. NOT A RECOMMENDATION! NOT FINANCIAL ADVICE! USE AT YOUR OWN RISK!
 
+**NOTE**: This strategy is designed and tested only for DAILY aggregation charts. Not tested for other aggregation periods.
+
 ### Example Chart
 
 Example ToS Chart applying this breakout strategy to AAPLE:
