@@ -58,9 +58,13 @@ Thinkscript source code is available in this repo: [relative_strength_beta_adjus
 ## IBD CANSLIM inspired Breakout Strategy
 
 [IBD CANSLIM](https://www.investors.com/ibd-university/can-slim/) is a popular system with a number of rules for recognizing and acting on leading stocks in cooperating market conditions. 
+CANSLIM has extreme focus on True Market Leader (TML) stocks with exceptional fundamentals (IBD Composite Rating 96+).
 
-This Thinkscript strategy is a simplified interpretation of the 52 week high breakout strategy. It is **NOT** intended as a replacement for applying the full CANSLIM system. 
-This strategy is simply a tool to help spot entry opportunities for further analysis. NOT A RECOMMENDATION! NOT FINANCIAL ADVICE! USE AT YOUR OWN RISK!
+This Thinkscript strategy is a simplified interpretation of the CANSLIM 52 week high breakout setup. It is intended to be used with pre-screened TML watchlist stocks.
+This strategy is **NOT** intended as a replacement for applying the full CANSLIM system. 
+It is simply a tool to help spot entry opportunities within TML watchlists for further analysis. 
+
+NOT A RECOMMENDATION! NOT FINANCIAL ADVICE! USE AT YOUR OWN RISK!
 
 **NOTE**: This strategy is designed and tested only for DAILY aggregation charts. Not tested for other aggregation periods.
 
