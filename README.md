@@ -70,7 +70,7 @@ NOT A RECOMMENDATION! NOT FINANCIAL ADVICE! USE AT YOUR OWN RISK!
 
 ### Example Chart
 
-Example ToS Chart applying this breakout strategy to AAPLE:
+Example ToS Chart applying this breakout strategy to AAPL:
 ![Screen Shot 2023-10-03 at 8 22 52 AM](https://github.com/ivelin/thinkorswim-apps/assets/2234901/5120cde3-8e63-4650-883e-8520221bbbdf)
 
 ### Notes
