@@ -12,10 +12,18 @@
 # Built for daily aggregation
 # Not tested with other aggregation periods
 
+# Adjust for current chart aggregation period
+plot aggPeriod = GetAggregationPeriod();
+aggPeriod.hide();
+
+plot aggAdjustment = AggregationPeriod.DAY / aggPeriod;
+aggAdjustment.hide();
+
 # CANSLIM requires at least 6 weeks of consolidation
 # N weeks on a daily chart is N*5
-input weeksOfConsolidation = 6;
-plot baseStartOffset = weeksOfConsolidation*5;
+# Experimentally, shorter periods appear to work a little better in recent years 
+input weeksOfConsolidation = 1;
+plot baseStartOffset = weeksOfConsolidation*5*aggAdjustment;
 baseStartOffset.hide();
 
 plot baseHigh = Highest(close[1], baseStartOffset);
@@ -61,8 +69,8 @@ tooExtended.Hide();
 plot aboveBase = high > baseHigh;
 aboveBase.Hide();
 
-# check if breakout is within 20% of 2 year high
-plot nearATH = high >= Highest(high, 252) * 0.8;
+# check if breakout is within 20% of 1 year high
+plot nearATH = high >= Highest(high, 252*aggAdjustment) * 0.8;
 nearATH.Hide();
 
 plot goodAvgVolume = volavg > minAverageVolume;
@@ -72,7 +80,7 @@ goodAvgVolume.Hide();
 plot nextEarningsOffset = GetEventOffset(Events.EARNINGS, 0);
 nextEarningsOffset.Hide();
 
-plot nearEarningsReport = nextEarningsOffset > -14;
+plot nearEarningsReport = nextEarningsOffset > -10;
 nearEarningsReport.Hide();
 
 # check if this bar is a breakout bar
@@ -87,11 +95,11 @@ isBreakout.Hide();
 # Next Layer Market Factors 
 #######
 
-plot sma50 = SimpleMovingAvg("length" = 50)."SMA";
+plot sma50 = SimpleMovingAvg("length" = 50*aggAdjustment)."SMA";
 sma50.hide();
 plot closeAbove50Sma = close > sma50;
 closeAbove50Sma.hide();
-plot sma200 = SimpleMovingAvg("length" = 200)."SMA";
+plot sma200 = SimpleMovingAvg("length" = 200*aggAdjustment)."SMA";
 sma200.hide();
 plot sma50OverSma200 = sma50 > sma200;
 sma50OverSma200.hide();
@@ -99,7 +107,7 @@ sma50OverSma200.hide();
 # NASDAQ net new highs v lows
 def hl = close("$NAHGH") - close("$NALOW");
 # show moving average line
-plot hlSma = MovingAverage(AverageType.SIMPLE, hl, 21);
+plot hlSma = MovingAverage(AverageType.SIMPLE, hl, 21*aggAdjustment);
 hlSma.hide();
 plot marketAboveAverage = hl >= hlSma;
 marketAboveAverage.hide();
@@ -109,7 +117,7 @@ marketUptrend.hide();
 plot marketBullish = marketUptrend or marketAboveAverage;
 marketBullish.hide();
 
-plot alpha = AlphaJensen();
+plot alpha = AlphaJensen(length=21*aggAdjustment);
 alpha.hide();
 plot alphaBullish = alpha > 0; # and alpha[1] > 0 and alpha[2] > 0;
 alphaBullish.hide();
@@ -122,9 +130,9 @@ def stockQty;
 
 # Sell rule
 def entryPrice = EntryPrice();
-plot stopLoss = if IsNaN(entryPrice) then no else low < 0.915 * entryPrice;
+plot stopLoss = if IsNaN(entryPrice) then no else close < 0.915 * entryPrice;
 stopLoss.Hide();
-plot takeProfit = if IsNaN(entryPrice) then no else high > 1.2 * entryPrice;
+plot takeProfit = if IsNaN(entryPrice) then no else close > 1.25 * entryPrice;
 takeProfit.Hide();
 plot sellSignal = (IsNaN(stockQty[1]) or stockQty[1] > 0) and !buySignal and (takeProfit or stopLoss or nextEarningsOffset > -3);
 sellSignal.Hide();
