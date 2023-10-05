@@ -29,7 +29,11 @@ baseStartOffset.hide();
 plot baseHigh = Highest(close[1], baseStartOffset);
 baseHigh.Hide();
 
-def maxBaseDepthPercent = 20;
+plot atr = ATR(length=baseStartOffset);
+atr.hide();
+
+plot maxBaseDepthPercent = 4*atr*100 / close; # 15;
+maxBaseDepthPercent.hide();
 
 input maxBreakoutPercentAboveBuyPoint = 4;
 
@@ -122,17 +126,39 @@ alpha.hide();
 plot alphaBullish = alpha > 0; # and alpha[1] > 0 and alpha[2] > 0;
 alphaBullish.hide();
 
+# In a cooperating market and uptrend stock, we can try to buy on pullbacks
+plot ema21 = MovAvgExponential(length=21*aggAdjustment);
+ema21.hide();
+plot ema21Oversma50 = ema21 > sma50;
+ema21OverSma50.hide();
+plot bounceOff21Ema = close > close[1] and AbsValue(close - ema21) / ema21 <= 0.02 and ema21 >= sma50; #   close crosses ema21;  close > ema21 and 
+bounceOff21Ema.hide();
+
+# plot bounceOff50Sma = no; # AbsValue(close - sma50) / sma50 <= 0.02;
+# bounceOff50Sma.hide();
+
+def buySignal;
+
+def maxBuyOffset = 10*aggAdjustment;
+def recentBuy = buySignal[1] within maxBuyOffset bars;
+# add to position that had a recent breakout
+plot addOnBounce = marketUptrend and alphaBullish and bounceOff21Ema; # (bounceOff21Ema or bounceOff50Sma); # recentBuy and 
+addOnBounce.hide();
+
 # Buy rule
-plot buySignal = isBreakout and closeAbove50SMA and sma50OverSma200 and marketBullish and alphaBullish;
-buySignal.hide();
+buySignal = (isBreakout or addOnBounce) and closeAbove50SMA and ema21Oversma50 and marketBullish and alphaBullish; #  sma50OverSma200 and
+plot buySignalPlot = buySignal;
+buySignalPlot.hide();
 
 def stockQty;
 
 # Sell rule
 def entryPrice = EntryPrice();
-plot stopLoss = if IsNaN(entryPrice) then no else close < 0.915 * entryPrice;
+def stopLossThreshold = if marketUptrend then 1-3*atr/close else 1-2*atr/close; # 0.915; # 
+plot stopLoss = if IsNaN(entryPrice) then no else close < stopLossThreshold * entryPrice ;
 stopLoss.Hide();
-plot takeProfit = if IsNaN(entryPrice) then no else close > 1.25 * entryPrice;
+def takeProfitThreshold = if marketUptrend then 1+18*atr/close else 1+6*atr/close; # 1.25; # 
+plot takeProfit = if IsNaN(entryPrice) then no else close > takeProfitThreshold * entryPrice;
 takeProfit.Hide();
 plot sellSignal = (IsNaN(stockQty[1]) or stockQty[1] > 0) and !buySignal and (takeProfit or stopLoss or nextEarningsOffset > -3);
 sellSignal.Hide();
