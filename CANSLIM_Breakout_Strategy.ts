@@ -1,4 +1,4 @@
-# Consolidation Base and Breakout Indicator based on IBD CANSLIM rules
+# Thinkscript Consolidation Base and Breakout Indicator based on IBD CANSLIM rules
 # ivelin.eth (c) 2023
 # Apache Software License 2.0
 
@@ -131,7 +131,13 @@ plot ema21 = MovAvgExponential(length=21*aggAdjustment);
 ema21.hide();
 plot ema21Oversma50 = ema21 > sma50;
 ema21OverSma50.hide();
-plot bounceOff21Ema = close > close[1] and AbsValue(close - ema21) / ema21 <= 0.02 and ema21 >= sma50; #   close crosses ema21;  close > ema21 and 
+plot nearness = 2*atr;
+nearness.hide();
+plot nearEma21 = AbsValue(high - ema21) <= nearness or AbsValue(low - ema21) <= nearness or AbsValue(vwap - ema21) <= nearness;
+nearEma21.hide();
+plot extendedAboveSma50 = high > 5*atr + sma50;
+extendedAboveSma50.hide();
+plot bounceOff21Ema = close > close[1] and nearEma21 and !extendedAboveSma50; #   close crosses ema21;  close > ema21 and 
 bounceOff21Ema.hide();
 
 # plot bounceOff50Sma = no; # AbsValue(close - sma50) / sma50 <= 0.02;
@@ -140,7 +146,7 @@ bounceOff21Ema.hide();
 def buySignal;
 
 def maxBuyOffset = 10*aggAdjustment;
-def recentBuy = buySignal[1] within maxBuyOffset bars;
+# def recentBuy = buySignal[1] within maxBuyOffset bars;
 # add to position that had a recent breakout
 plot addOnBounce = marketUptrend and alphaBullish and bounceOff21Ema; # (bounceOff21Ema or bounceOff50Sma); # recentBuy and 
 addOnBounce.hide();
