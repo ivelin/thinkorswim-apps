@@ -84,11 +84,11 @@ goodAvgVolume.Hide();
 plot nextEarningsOffset = GetEventOffset(Events.EARNINGS, 0);
 nextEarningsOffset.Hide();
 
-plot nearEarningsReport = nextEarningsOffset > -10;
+plot nearEarningsReport = nextEarningsOffset > -5;
 nearEarningsReport.Hide();
 
 # check if this bar is a breakout bar
-plot isBreakout = aboveBase and isConsolidationOK and (buyVolSpike or buyVolSpike[1]) and !tooExtended and goodAvgVolume and !nearEarningsReport and nearATH;
+plot isBreakout = aboveBase and isConsolidationOK and (buyVolSpike or buyVolSpike[1]) and !tooExtended and goodAvgVolume and nearATH and !nearEarningsReport;
 isBreakout.SetPaintingStrategy(PaintingStrategy.BOOLEAN_WEDGE_UP);
 isBreakout.DefineColor("BuyRange", CreateColor( 50, 100 , 75));
 isBreakout.Hide();
@@ -158,15 +158,22 @@ buySignalPlot.hide();
 
 def stockQty;
 
+
+def highestCloseSinceBuy = CompoundValue(1, if buySignal then open[-1] else if close > highestCloseSinceBuy[1] then close else highestCloseSinceBuy[1], 0);
+
+plot highestCloseSinceEntry = highestCloseSinceBuy;
+highestCloseSinceEntry.hide();
+
 # Sell rule
 def entryPrice = EntryPrice();
 def stopLossThreshold = if marketUptrend then 1-3*atr/close else 1-2*atr/close; # 0.915; # 
 plot stopLoss = if IsNaN(entryPrice) then no else close < stopLossThreshold * entryPrice ;
 stopLoss.Hide();
+
 def takeProfitThreshold = if marketUptrend then 1+18*atr/close else 1+6*atr/close; # 1.25; # 
-plot takeProfit = if IsNaN(entryPrice) then no else close > takeProfitThreshold * entryPrice;
+plot takeProfit = if IsNaN(entryPrice) then no else highestCloseSinceEntry > takeProfitThreshold * entryPrice;
 takeProfit.Hide();
-plot sellSignal = (IsNaN(stockQty[1]) or stockQty[1] > 0) and !buySignal and (takeProfit or stopLoss or nextEarningsOffset > -3);
+plot sellSignal = (IsNaN(stockQty[1]) or stockQty[1] > 0) and !buySignal and (takeProfit or stopLoss or nextEarningsOffset > -1);
 sellSignal.Hide();
 
 # Track stockQty
@@ -176,5 +183,7 @@ plot stockQtyPlot = stockQty;
 stockQtyPlot.hide();
 
 AddOrder(OrderType.BUY_TO_OPEN, buySignal, open[-1], 1, Color.LIME, Color.LIME, "CS Buy @ " + open[-1]);
-AddOrder(OrderType.SELL_TO_CLOSE, sellSignal, open[-1], 1, Color.ORANGE, Color.ORANGE, "CS Sell @ " + open[-1]);
 
+
+
+AddOrder(OrderType.SELL_TO_CLOSE, sellSignal, open[-1], 1, Color.ORANGE, Color.ORANGE, "CS Sell @ " + open[-1]);
