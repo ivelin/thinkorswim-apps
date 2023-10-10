@@ -14,68 +14,179 @@
 
 # Adjust for current chart aggregation period
 plot aggPeriod = GetAggregationPeriod();
-aggPeriod.hide();
+aggPeriod.Hide();
 
 plot aggAdjustment = AggregationPeriod.DAY / aggPeriod;
-aggAdjustment.hide();
+aggAdjustment.Hide();
 
 # CANSLIM requires at least 6 weeks of consolidation
 # N weeks on a daily chart is N*5
 # Experimentally, shorter periods appear to work a little better in recent years 
-input weeksOfConsolidation = 1;
-plot baseStartOffset = weeksOfConsolidation*5*aggAdjustment;
-baseStartOffset.hide();
 
-plot baseHigh = Highest(close[1], baseStartOffset);
+# CANSLIM requires at least 6 weeks of consolidation
+# N weeks on a daily chart is N*5
+# Experimentally, shorter periods appear to work a little better in recent years 
+input minBaseLengthWeeks = 1;
+plot minBaseLength = minBaseLengthWeeks * 5 * aggAdjustment;
+minBaseLength.Hide();
+
+input maxBaseLengthWeeks = 24; # about 6 months
+plot maxBaseLength = maxBaseLengthWeeks * 5 * aggAdjustment;
+maxBaseLength.Hide();
+
+plot baseHighOffset = GetMaxValueOffset(close[1], maxBaseLength);
+baseHighOffset.Hide();
+
+plot isBreakout;
+
+plot atr = ATR(length = 50 * aggAdjustment);
+atr.Hide();
+
+plot baseHigh;
 baseHigh.Hide();
 
-plot atr = ATR(length=baseStartOffset);
-atr.hide();
-
-plot maxBaseDepthPercent = 4*atr*100 / close; # 15;
-maxBaseDepthPercent.hide();
-
-input maxBreakoutPercentAboveBuyPoint = 4;
+plot baseLow;
+baseLow.Hide();
 
 input volumeAverageLength = 50;
 
 input minBreakoutVolumePercent = 10;
 
 input minAverageVolume = 250000;
-
-plot consolidationLow = Lowest(close[1], baseStartOffset);
-consolidationLow.Hide();
-
-plot consolidationDepth = 1 - consolidationLow / baseHigh;
-consolidationDepth.Hide();
-
-plot isConsolidationOK = consolidationDepth * 100 <= maxBaseDepthPercent;
-isConsolidationOK.Hide();
-
-plot buyUpperLimit = baseHigh * (1 + maxBreakoutPercentAboveBuyPoint / 100);
-buyUpperLimit.Hide();
-
 def volavg = VolumeAvg(length = volumeAverageLength).VolAvg;
 
-# def mflow = MoneyFlow(close=close, high=high, low=low, volume=volume);
-# plot startMoneyFlow = mflow[baseStartOffset];
-# startMoneyFlow.hide();
-# plot endMoneyFlow = mflow;
-# endMoneyFlow.hide();
-# plot goodMoneyFlow = (endMoneyFlow-startMoneyFlow) / AbsValue(startMoneyFlow) > minBreakoutVolumePercent / 100;
-# goodMoneyFlow.hide();
 plot buyVolSpike = if volume > volavg * (1 + minBreakoutVolumePercent / 100) and close > close[1] then yes else no;
 buyVolSpike.Hide();
 
-plot tooExtended = close > buyUpperLimit;
+plot maxBaseDepth;
+maxBaseDepth.Hide();
+
+def maxBreakoutPercentAboveBuyPoint = atr;
+
+plot consolidationDepth;
+consolidationDepth.Hide();
+
+plot isConsolidationOK;
+isConsolidationOK.Hide();
+
+plot buyUpperLimit;
+buyUpperLimit.Hide();
+
+plot tooExtended;
 tooExtended.Hide();
 
-plot aboveBase = high > baseHigh;
+plot aboveBase;
 aboveBase.Hide();
 
+if baseHighOffset > minBaseLength {
+    baseHigh = GetValue(close[1], baseHighOffset);
+    baseLow = fold i = 0 to baseHighOffset with price = baseHigh do if price > GetValue(close, i) then GetValue(close, i) else price;
+    consolidationDepth = baseHigh - baseLow;
+    maxBaseDepth = (baseHighOffset / ( 5 * aggAdjustment) + 2) * atr;
+    isConsolidationOK = consolidationDepth <= maxBaseDepth;
+    buyUpperLimit = baseHigh + atr;
+    tooExtended = close > buyUpperLimit;
+    aboveBase = close > baseHigh;
+    # check if this bar is a breakout bar
+    isBreakout = aboveBase and isConsolidationOK;
+} else {
+    isBreakout = no;
+    baseLow = Double.NaN;
+    aboveBase  = Double.NaN;
+    tooExtended  = Double.NaN;
+    buyUpperLimit = Double.NaN;
+    isConsolidationOK  = Double.NaN;
+    consolidationDepth = Double.NaN;
+    baseHigh = Double.NaN;
+    maxBaseDepth = Double.NaN;
+}
+
+isBreakout.SetPaintingStrategy(PaintingStrategy.BOOLEAN_WEDGE_UP);
+isBreakout.DefineColor("BuyRange", CreateColor( 50, 100 , 75));
+
+
+plot breakoutBuyZone = (isBreakout and buyVolSpike) or (isBreakout[1] and buyVolSpike[1] and close < high[1] + atr);
+breakoutBuyZone.SetPaintingStrategy(PaintingStrategy.BOOLEAN_WEDGE_UP);
+
+
+# AddChartBubble(isBreakout and !isBreakout[1], high, "Base\nBreakout", isBreakout.Color("BuyRange"), up = yes);
+
+#######
+# Next Layer Market Factors 
+#######
+
+plot sma50 = SimpleMovingAvg("length" = 50 * aggAdjustment)."SMA";
+sma50.Hide();
+plot closeAbove50Sma = close > sma50;
+closeAbove50Sma.Hide();
+plot sma200 = SimpleMovingAvg("length" = 200 * aggAdjustment)."SMA";
+sma200.Hide();
+plot sma50OverSma200 = sma50 > sma200;
+sma50OverSma200.Hide();
+
+# NASDAQ net new highs v lows
+def hl = close("$NAHGH") - close("$NALOW");
+# show moving average line
+plot hlSma = MovingAverage(AverageType.SIMPLE, hl, 21 * aggAdjustment);
+hlSma.Hide();
+plot marketAboveAverage = hl >= hlSma;
+marketAboveAverage.Hide();
+# Definite bear market when SPX SMA50 below SMA200
+def spx50sma = SimpleMovingAvg(close("SPX"), length = 50 * aggAdjustment);
+def spx200sma = SimpleMovingAvg(close("SPX"), length = 200);
+plot isBearMarket =  sma50 < sma200 and (spx50sma < spx50sma[minBaseLength] or spx200sma < spx200sma[minBaseLength]);
+isBearMarket.Hide();
+plot marketBullish = !isBearMarket and (hl > 0 or marketAboveAverage);
+marketBullish.Hide();
+plot marketUptrend = marketBullish and marketBullish[1] and marketBullish[2];
+marketUptrend.Hide();
+
+plot alpha = AlphaJensen(length = 21 * aggAdjustment);
+alpha.Hide();
+plot alphaUptrend = alpha > 0 and alpha[1] > 0 and alpha[2] > 0;
+alphaUptrend.Hide();
+plot alphaBullish = alpha > 0; # or alphaUptrend[1]; # 
+alphaBullish.Hide();
+
+# In a cooperating market and uptrend stock, we can try to buy on pullbacks
+plot ema21 = MovAvgExponential(length = 21 * aggAdjustment);
+ema21.Hide();
+plot ema21Oversma50 = ema21 > sma50;
+ema21Oversma50.Hide();
+plot nearness = 2 * atr;
+nearness.Hide();
+plot nearEma21 = AbsValue(high - ema21) <= nearness or AbsValue(low - ema21) <= nearness or AbsValue(vwap - ema21) <= nearness;
+nearEma21.Hide();
+plot extendedAboveSma50 = high > 5 * atr + sma50;
+extendedAboveSma50.Hide();
+plot bounceOff21Ema = close > close[1] and volume > volume[1] and nearEma21 and !extendedAboveSma50; #   close crosses ema21;  close > ema21 and 
+bounceOff21Ema.Hide();
+
+# plot bounceOff50Sma = no; # AbsValue(close - sma50) / sma50 <= 0.02;
+# bounceOff50Sma.hide();
+
+def buyTrigger;
+
+def entryPrice = EntryPrice();
+def maxBuyOffset = 21 * aggAdjustment; # 2 weeks
+plot recentBuy = (buyTrigger[1] or isBreakout) within maxBuyOffset bars;
+recentBuy.Hide();
+# add to position that had a recent breakout
+plot addOnBounce = recentBuy and marketBullish and alphaUptrend and bounceOff21Ema and ema21 > ema21[minBaseLength] and sma50 > sma50[minBaseLength]; # (bounceOff21Ema or bounceOff50Sma); # recentBuy and 
+addOnBounce.Hide();
+
+#
+# Janet's rule (IBD ATX) for overriding 1YH offset with market bottom
+plot marketBottom = MovingAvgCrossover(price = close("SPX"), length1 = 50 * aggAdjustment, length2 = 200 * aggAdjustment, averageType1 = AverageType.SIMPLE, averageType2 = AverageType.SIMPLE,  crossingType = "above" );
+marketBottom.Hide();
+def marketBottomOff = if marketBottom then 0 else if IsNaN(marketBottomOff[1]) then Double.NaN else marketBottomOff[1] + 1;
+plot marketBottomOffset = marketBottomOff;
+marketBottomOffset.Hide();
 # check if breakout is within 20% of 1 year high
-plot nearATH = high >= Highest(high, 252*aggAdjustment) * 0.8;
-nearATH.Hide();
+def highestHighOffset = if IsNaN(marketBottomOffset) then 252 else if marketBottomOffset < 252 then marketBottomOffset else 252;
+plot near1YH = close >= LookUpHighest(close, highestHighOffset * aggAdjustment) * 0.80;
+near1YH.Hide();
+
 
 plot goodAvgVolume = volavg > minAverageVolume;
 goodAvgVolume.Hide();
@@ -84,106 +195,41 @@ goodAvgVolume.Hide();
 plot nextEarningsOffset = GetEventOffset(Events.EARNINGS, 0);
 nextEarningsOffset.Hide();
 
-plot nearEarningsReport = nextEarningsOffset > -5;
-nearEarningsReport.Hide();
+# plot nearEarningsReport = nextEarningsOffset >= -7;
+# nearEarningsReport.Hide();
 
-# check if this bar is a breakout bar
-plot isBreakout = aboveBase and isConsolidationOK and (buyVolSpike or buyVolSpike[1]) and !tooExtended and goodAvgVolume and nearATH and !nearEarningsReport;
-isBreakout.SetPaintingStrategy(PaintingStrategy.BOOLEAN_WEDGE_UP);
-isBreakout.DefineColor("BuyRange", CreateColor( 50, 100 , 75));
-isBreakout.Hide();
-
-# AddChartBubble(isBreakout and !isBreakout[1], high, "Base\nBreakout", isBreakout.Color("BuyRange"), up = yes);
-
-#######
-# Next Layer Market Factors 
-#######
-
-plot sma50 = SimpleMovingAvg("length" = 50*aggAdjustment)."SMA";
-sma50.hide();
-plot closeAbove50Sma = close > sma50;
-closeAbove50Sma.hide();
-plot sma200 = SimpleMovingAvg("length" = 200*aggAdjustment)."SMA";
-sma200.hide();
-plot sma50OverSma200 = sma50 > sma200;
-sma50OverSma200.hide();
-
-# NASDAQ net new highs v lows
-def hl = close("$NAHGH") - close("$NALOW");
-# show moving average line
-plot hlSma = MovingAverage(AverageType.SIMPLE, hl, 21*aggAdjustment);
-hlSma.hide();
-plot marketAboveAverage = hl >= hlSma;
-marketAboveAverage.hide();
-# Show trend cloud
-plot marketUptrend =hl > 0 and hl[1] > 0 and hl[2] > 0;
-marketUptrend.hide();
-plot marketBullish = marketUptrend or marketAboveAverage;
-marketBullish.hide();
-
-plot alpha = AlphaJensen(length=21*aggAdjustment);
-alpha.hide();
-plot alphaBullish = alpha > 0; # and alpha[1] > 0 and alpha[2] > 0;
-alphaBullish.hide();
-
-# In a cooperating market and uptrend stock, we can try to buy on pullbacks
-plot ema21 = MovAvgExponential(length=21*aggAdjustment);
-ema21.hide();
-plot ema21Oversma50 = ema21 > sma50;
-ema21OverSma50.hide();
-plot nearness = 2*atr;
-nearness.hide();
-plot nearEma21 = AbsValue(high - ema21) <= nearness or AbsValue(low - ema21) <= nearness or AbsValue(vwap - ema21) <= nearness;
-nearEma21.hide();
-plot extendedAboveSma50 = high > 5*atr + sma50;
-extendedAboveSma50.hide();
-plot bounceOff21Ema = close > close[1] and nearEma21 and !extendedAboveSma50; #   close crosses ema21;  close > ema21 and 
-bounceOff21Ema.hide();
-
-# plot bounceOff50Sma = no; # AbsValue(close - sma50) / sma50 <= 0.02;
-# bounceOff50Sma.hide();
-
-def buySignal;
-
-def maxBuyOffset = 10*aggAdjustment;
-# def recentBuy = buySignal[1] within maxBuyOffset bars;
-# add to position that had a recent breakout
-plot addOnBounce = marketUptrend and alphaBullish and bounceOff21Ema; # (bounceOff21Ema or bounceOff50Sma); # recentBuy and 
-addOnBounce.hide();
+plot bullishContext = marketBullish and alphaBullish and goodAvgVolume and near1YH; # and !nearEarningsReport;
+bullishContext.Hide();
 
 # Buy rule
-buySignal = (isBreakout or addOnBounce) and closeAbove50SMA and ema21Oversma50 and marketBullish and alphaBullish; #  sma50OverSma200 and
-plot buySignalPlot = buySignal;
-buySignalPlot.hide();
+buyTrigger = (breakoutBuyZone or addOnBounce) and closeAbove50Sma and ema21Oversma50 and bullishContext; #  sma50OverSma200 and
+plot buySignal = buyTrigger;
+buySignal.SetPaintingStrategy(PaintingStrategy.BOOLEAN_ARROW_DOWN);
 
-def stockQty;
-
-
-def highestCloseSinceBuy = CompoundValue(1, if buySignal then open[-1] else if close > highestCloseSinceBuy[1] then close else highestCloseSinceBuy[1], 0);
+def highestCloseSinceBuy = CompoundValue(1, if IsNaN(highestCloseSinceBuy[1]) then close else if buySignal then open[-1] else if close > highestCloseSinceBuy[1] then close else highestCloseSinceBuy[1], 0);
 
 plot highestCloseSinceEntry = highestCloseSinceBuy;
-highestCloseSinceEntry.hide();
+highestCloseSinceEntry.Hide();
 
 # Sell rule
-def entryPrice = EntryPrice();
-def stopLossThreshold = if marketUptrend then 1-3*atr/close else 1-2*atr/close; # 0.915; # 
-plot stopLoss = if IsNaN(entryPrice) then no else close < stopLossThreshold * entryPrice ;
+plot stopLossTolerance = if marketUptrend and alphaUptrend then 3 else if marketBullish or alphaBullish then 2 else 1;
+stopLossTolerance.Hide();
+def stopLossThreshold = stopLossTolerance * atr;
+plot stopLoss = if IsNaN(entryPrice) then no else close <  entryPrice - stopLossThreshold;
 stopLoss.Hide();
 
-def takeProfitThreshold = if marketUptrend then 1+18*atr/close else 1+6*atr/close; # 1.25; # 
-plot takeProfit = if IsNaN(entryPrice) then no else highestCloseSinceEntry > takeProfitThreshold * entryPrice;
+def takeProfitThreshold = stopLossTolerance * 7 * atr;
+plot takeProfit = if IsNaN(entryPrice) then no else highestCloseSinceEntry > entryPrice + takeProfitThreshold;
 takeProfit.Hide();
-plot sellSignal = (IsNaN(stockQty[1]) or stockQty[1] > 0) and !buySignal and (takeProfit or stopLoss or nextEarningsOffset > -1);
-sellSignal.Hide();
 
-# Track stockQty
-stockQty = CompoundValue(1, if buySignal then stockQty[1]+1 else if sellSignal then stockQty[1]-1 else stockQty[1], 0);
+# Looks like MMM is only available for the current date, not based on chart bar time
+# plot mmv = GetMarketMakerMove();
+# mmv.Hide();
 
-plot stockQtyPlot = stockQty;
-stockQtyPlot.hide();
+# plot highEarningsGapRisk = nextEarningsOffset >= -2; # and if IsNaN(mmv) then yes else mmv > atr;
+# highEarningsGapRisk.hide();
+plot sellSignal = !buySignal and (takeProfit or stopLoss); # or highEarningsGapRisk);
+sellSignal.SetPaintingStrategy(PaintingStrategy.BOOLEAN_ARROW_UP);
 
-AddOrder(OrderType.BUY_TO_OPEN, buySignal, open[-1], 1, Color.LIME, Color.LIME, "CS Buy @ " + open[-1]);
-
-
-
-AddOrder(OrderType.SELL_TO_CLOSE, sellSignal, open[-1], 1, Color.ORANGE, Color.ORANGE, "CS Sell @ " + open[-1]);
+AddOrder(OrderType.BUY_TO_OPEN, buySignal, open[-1], 1, Color.LIME, Color.LIME, "Buy @ " + open[-1]);
+AddOrder(OrderType.SELL_TO_CLOSE, sellSignal, open[-1], 1, Color.ORANGE, Color.ORANGE, "Buy @ " + open[-1]);
