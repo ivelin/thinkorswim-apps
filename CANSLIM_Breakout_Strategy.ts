@@ -232,4 +232,4 @@ plot sellSignal = !buySignal and (takeProfit or stopLoss); # or highEarningsGapR
 sellSignal.SetPaintingStrategy(PaintingStrategy.BOOLEAN_ARROW_UP);
 
 AddOrder(OrderType.BUY_TO_OPEN, buySignal, open[-1], 1, Color.LIME, Color.LIME, "Buy @ " + open[-1]);
-AddOrder(OrderType.SELL_TO_CLOSE, sellSignal, open[-1], 1, Color.ORANGE, Color.ORANGE, "Buy @ " + open[-1]);
+AddOrder(OrderType.SELL_TO_CLOSE, sellSignal, open[-1], 1, Color.ORANGE, Color.ORANGE, "Sell @ " + open[-1]);
