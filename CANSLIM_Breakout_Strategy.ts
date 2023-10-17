@@ -82,7 +82,7 @@ if baseHighOffset > minBaseLength {
     baseHigh = GetValue(close[1], baseHighOffset);
     baseLow = fold i = 0 to baseHighOffset with price = baseHigh do if price > GetValue(close, i) then GetValue(close, i) else price;
     consolidationDepth = baseHigh - baseLow;
-    maxBaseDepth = (baseHighOffset / ( 5 * aggAdjustment) + 2) * atr;
+    maxBaseDepth = min(baseHigh*0.7, (baseHighOffset / ( 5 * aggAdjustment) + 2) * atr);
     isConsolidationOK = consolidationDepth <= maxBaseDepth;
     buyUpperLimit = baseHigh + atr;
     tooExtended = close > buyUpperLimit;
@@ -105,7 +105,7 @@ isBreakout.SetPaintingStrategy(PaintingStrategy.BOOLEAN_WEDGE_UP);
 isBreakout.DefineColor("BuyRange", CreateColor( 50, 100 , 75));
 
 
-plot breakoutBuyZone = (isBreakout and buyVolSpike) or (isBreakout[1] and buyVolSpike[1] and close < high[1] + atr);
+plot breakoutBuyZone = (isBreakout and buyVolSpike) or (isBreakout[1] and (buyVolSpike or buyVolSpike[1]) and close < high[1] + atr);
 breakoutBuyZone.SetPaintingStrategy(PaintingStrategy.BOOLEAN_WEDGE_UP);
 
 
