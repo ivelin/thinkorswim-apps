@@ -63,8 +63,8 @@ case "ALL STOCKS":
 # IBD signals bull rally if net new highs above 400
 def bullRally = 400;
  
-def overboughtThreshold = 95;
-def oversoldThreshold = 95;
+def overboughtThreshold = 85;
+def oversoldThreshold = 85;
 
 # show moving average line
 plot sma = MovingAverage(AverageType.SIMPLE, diff, maLength);
