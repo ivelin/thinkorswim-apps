@@ -33,6 +33,9 @@
 declare lower;
 input exchange = {default "ALL STOCKS", "NYSE", "NASDAQ", "AMEX", "ARCA", "ETF"};
  
+
+input maLength = 21;
+
 def diff;
 
 def nydiff = close("$NYHGH") - close("$NYLOW");
@@ -56,16 +59,61 @@ case "ETF":
 case "ALL STOCKS":
     diff = alldiff;
 }
+
+# IBD signals bull rally if net new highs above 400
+def bullRally = 400;
  
+def overboughtThreshold = 95;
+def oversoldThreshold = 95;
+
+# show moving average line
+plot sma = MovingAverage(AverageType.SIMPLE, diff, maLength);
+
+
 # show net new highs/lows bars
 plot hlp = diff;
+
+plot aboveAverage = hlp >= sma;
+
+# Show trend cloud
+plot uptrend = diff > 0 and diff[1] > 0 and diff[2] > 0;
+plot downtrend = diff < 0 and diff[1] < 0 and diff[2] < 0;
+
+plot bullSignal = uptrend or aboveAverage;
+
+plot offsetYearAgo;
+offsetYearAgo.hide();
+def ap = GetAggregationPeriod();
+offsetYearAgo = if ap == AggregationPeriod.DAY then 252 else if ap == AggregationPeriod.WEEK then 52 else Double.NaN;
+
+plot overbought = Highest(data = diff[1], length = offsetYearAgo) * (overboughtThreshold/100);
+overbought.hide();
+
+plot oversold = Lowest(data = diff[1], length = offsetYearAgo) * (oversoldThreshold / 100);
+oversold.hide();
+
+def hiLevel = if uptrend then Double.POSITIVE_INFINITY else if downtrend then Double.NEGATIVE_INFINITY else 0;
+AddCloud(hiLevel, -hiLevel, Color.LIGHT_GREEN, Color.LIGHT_RED);
+
+
 hlp.EnableApproximation();
 hlp.SetPaintingStrategy(PaintingStrategy.HISTOGRAM);
 hlp.SetLineWeight(5);
-hlp.AssignValueColor(if hlp < 0 then Color.RED
-                        else if hlp > 0 then Color.GREEN
-                        else Color.CYAN);
+hlp.DefineColor("More Highs", COLOR.DARK_GREEN);
+hlp.DefineColor("Uptrend", Color.GREEN);
+hlp.DefineColor("Overbought", Color.CYAN);
+hlp.DefineColor("Lows above Average", Color.DARK_RED);
+hlp.DefineColor("Lows below Average", Color.RED);
+hlp.DefineColor("Oversold", Color.MAGENTA);
+hlp.DefineColor("Neutral", Color.CYAN);
+hlp.AssignValueColor(if hlp < 0 then if hlp < oversold then hlp.Color("Oversold") 
+                        else if bullSignal then hlp.Color("Lows above Average") else hlp.Color("Lows below Average")
+                        else if hlp > overbought then hlp.Color("Overbought")
+                        else if hlp > bullRally then hlp.Color("Uptrend")
+                        else if hlp > 0 then hlp.Color("More Highs")
+                        else hlp.Color("Neutral"));
  
+
 # show zero line
 plot zero = 0.0;
 zero.SetDefaultColor(Color.WHITE);
@@ -73,9 +121,4 @@ zero.SetLineWeight(1);
 zero.HideBubble();
 zero.HideTitle();
 
-# Show trend cloud
-def uptrend = diff > 0 and diff[1] > 0 and diff[2] > 0;
-def downtrend = diff < 0 and diff[1] < 0 and diff[2] < 0;
-def hiLevel = if uptrend then Double.POSITIVE_INFINITY else if downtrend then Double.NEGATIVE_INFINITY else 0;
-AddCloud(hiLevel, -hiLevel, Color.LIGHT_GREEN, Color.LIGHT_RED);
 
