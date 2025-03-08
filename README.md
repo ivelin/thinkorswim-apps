@@ -6,6 +6,48 @@ Various experimental studies and strategies written in Thinkscript for users of 
 **USE AT YOUR OWN RISK!**
 > Disclaimer: In order to demonstrate the functionality of these apps, actual ticker symbols may be used. However, we do not make recommendations or determine the suitability of any security or strategy for individual traders. Any investment decision you make in your self-directed account is solely your responsibility. Be sure to backtest any strategy to determine if you understand the risks involved with each strategy.
 
+
+## ThinkOrSwim Position Capital Efficiency and Time Weighted Returns Study
+
+### Overview
+
+This ThinkOrSwim chart study visualizes the performance of a trading position over time. It plots the **current Invested Capital** and **Total Profit** as lines on a lower chart panel and displays the **Time-Adjusted Return** (a simplified Modified Dietz Return) as a label. The study leverages real-time position data to track capital deployment and profitability, with a special emphasis on the **time-averaged invested capital** for assessing capital efficiency.
+
+### Features
+- **Invested Capital Plot**: Tracks the current cost basis of your position (in dollars) as a **dark green** line.
+- **Total Profit Plot**: Displays the combined realized and unrealized gains/losses (in dollars) as an **orange** line.
+- **Time-Adjusted Return**: A label showing the return percentage, calculated as Total Profit divided by the time-averaged invested capital, adjusted for the duration capital was deployed.
+- **Labels**:
+  - **Average Invested Capital**: Shows the time-averaged invested capital (in dollars).
+  - **Total Profit**: Displays the current total profit (in dollars).
+  - **Time-Adjusted Return**: Presents the return percentage.
+- **Customizable Colors**: Users can adjust label colors via dropdown inputs (default: **light gray**).
+
+### Thinkorswim Shared Study Link
+
+Position Capital Efficiency and Time Weighted Returns Study can be imported directly into ToS Desktop from [this link](http://tos.mx/!4UQxYgd7)
+
+### Notes on Approximations
+- **Execution Price**: The study approximates the sale price for realized gains using the bar’s closing price (`close`) because ThinkOrSwim chart studies don’t provide access to exact execution prices. This is annotated in the code where `realizedPL` is calculated.
+- **Time-Adjusted Return**: This metric simplifies the traditional Modified Dietz method by using average invested capital instead of precise cash flow timing, making it practical within ThinkScript’s limitations but less granular.
+
+### Example Chart
+
+Example ToS Charts with Capital Efficiency Study and trades along the price chart of example stocks.
+
+![Screenshot from 2025-03-08 16-13-16](https://github.com/user-attachments/assets/d6363c19-3cbc-4076-8898-165fe13bf004)
+
+![image](https://github.com/user-attachments/assets/fa0c46cf-b7f6-4c70-ae00-ef6849ce0172)
+
+
+### Source Code
+
+Thinkscript source code is available in this repo: [position-capital-efficiency.ts](position-capital-efficiency.ts)
+
+### Credit
+
+This study was built in collaboration with [Grok 3](https://grok.com/).
+
 ## Net New Highs - Lows
 
 Leading market trend indicator that shows whether stocks in a given period have net new 52 week highs or net new lows. Generally if periods of net new highs are more frequent than periods with net new lows, it may indicate that a bullish market trend is forming. Respectively if periods of net new lows are more frequent, that may indicate that a bear market trend is forming.
