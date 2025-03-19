@@ -18,7 +18,7 @@ This ThinkOrSwim chart study visualizes the performance of a trading position ov
 - **Total Profit Plot**: Displays the combined realized and unrealized gains/losses (in dollars) as an **orange** line.
 - **Time-Adjusted Return**: A label showing the return percentage, calculated as Total Profit divided by the time-averaged invested capital, adjusted for the duration capital was deployed.
 - **Labels**:
-  - **Average Invested Capital**: Shows the time-averaged invested capital (in dollars).
+  - **Average Invested Capital**: Shows the time-averaged invested capital (in dollars). Only bars when some capital was working count. Bars without any invested capitals are not counted for the average.
   - **Total Profit**: Displays the current total profit (in dollars).
   - **Time-Adjusted Return**: Presents the return percentage.
 - **Customizable Colors**: Users can adjust label colors via dropdown inputs (default: **light gray**).
