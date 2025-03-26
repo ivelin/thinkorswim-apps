@@ -35,34 +35,41 @@ def openPL = GetOpenPL();
 # Calculate total profit (realized + unrealized)
 def totalProfit = totalRealizedGains + openPL;
 
-# Accumulate invested capital and count bars only when quantity > 0
-def activeInvestedCapital = if quantity > 0 then investedCapital else 0;
+def isActivePosition = if quantity > 1 then 1 else 0;
+
+# Accumulate invested capital and count bars only when quantity > 1
+# Excludes days with only one shares or no shares held from active investment calculations.
+def activeInvestedCapital = if isActivePosition then investedCapital else 0;
 def cumulativeActiveCapital = if BarNumber() == 1 then activeInvestedCapital else cumulativeActiveCapital[1] + activeInvestedCapital;
-def activeBars = if BarNumber() == 1 then (if quantity > 0 then 1 else 0) else activeBars[1] + (if quantity > 0 then 1 else 0);
+def activeBars = if BarNumber() == 1 then (isActivePosition) else activeBars[1] + (isActivePosition);
 
 # Calculate average invested capital over active bars
 def averageInvestedCapital = if activeBars > 0 then cumulativeActiveCapital / activeBars else Double.NaN;
 
 # Calculate Time-Adjusted Return using average invested capital over active bars
-def TimeAdjustedReturn = if averageInvestedCapital != 0 then (totalProfit / averageInvestedCapital) * 100 else Double.NaN;
+plot TimeAdjustedReturn = if averageInvestedCapital != 0 then (totalProfit / averageInvestedCapital) * 100 else Double.NaN;
+TimeAdjustedReturn.hide();
 
-# Plot Invested Capital on the left axis (in dollars)
+# Plot Invested Capital as a hidden line for the cloud
 plot InvestedCapitalPlot = investedCapital;
 InvestedCapitalPlot.SetDefaultColor(Color.DARK_GREEN);
-InvestedCapitalPlot.SetPaintingStrategy(PaintingStrategy.LINE);
-InvestedCapitalPlot.SetLineWeight(2);
+InvestedCapitalPlot.Hide();  # Hide the line since we'll use AddCloud
 
-# Plot Total Profit (Returns) on the left axis (in dollars)
+# Plot Total Profit (Returns) as a line with increased thickness
 plot TotalProfitPlot = totalProfit;
 TotalProfitPlot.SetDefaultColor(Color.ORANGE);
 TotalProfitPlot.SetPaintingStrategy(PaintingStrategy.LINE);
-TotalProfitPlot.SetLineWeight(2);
+TotalProfitPlot.SetLineWeight(3);  # Thicker line for visibility
 
 # Add a zero line for reference
 plot ZeroLine = 0;
 ZeroLine.SetDefaultColor(Color.RED);
 
+# Add cloud for Invested Capital (shaded area from ZeroLine to InvestedCapitalPlot)
+AddCloud(InvestedCapitalPlot, ZeroLine, Color.DARK_GREEN, Color.DARK_GREEN);
+
 # Add labels with user-selected colors
 AddLabel(yes, "Average Invested Capital ($): " + Round(averageInvestedCapital, 2), GetColor(AverageInvestedCapitalColor));
 AddLabel(yes, "Total Profit ($): " + Round(totalProfit, 2), GetColor(TotalProfitColor));
 AddLabel(yes, "Time-Adjusted Return: " + Round(TimeAdjustedReturn, 2) + "%", GetColor(TimeAdjustedReturnColor));
+AddLabel(yes, "Open P/L %: " + Round(100*(close/avgPrice-1), 2) + "%", GetColor(TimeAdjustedReturnColor));
